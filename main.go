@@ -5,6 +5,7 @@ import (
 	"os"
 
 	"github.com/AgusDOLARD/zhare/internal"
+	"github.com/AgusDOLARD/zhare/internal/server"
 )
 
 const (
@@ -26,7 +27,7 @@ func main() {
 	}
 
 	fmt.Printf("Serving on: %s", url)
-	err = internal.ServeFile(fmt.Sprintf(":%v", port), os.Args...)
+	err = server.Serve(fmt.Sprintf(":%v", port), os.Args...)
 	if err != nil {
 		fmt.Fprint(os.Stderr, err.Error())
 		os.Exit(1)
