@@ -11,7 +11,7 @@ func Serve(addr string, fp ...string) error {
 		if len(fp) == 1 {
 			GetUploadHandle(w, r)
 		} else {
-			GetDownloadHandle(w, r, fp[0])
+			GetDownloadHandle(w, r, fp[1])
 		}
 	})
 	return http.ListenAndServe(addr, srv)
