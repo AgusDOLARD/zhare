@@ -25,6 +25,12 @@ Specify the path to the file you want to share:
 zhare path/to/your/file
 ```
 
+Or simple run `zhare` to run a server where you can upload files
+
+### 🚩Flags
+
+- _-qr:_ show qr for web page
+
 ## 📜 License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.

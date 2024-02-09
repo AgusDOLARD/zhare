@@ -1,6 +1,7 @@
 package main
 
 import (
+	"flag"
 	"fmt"
 	"os"
 
@@ -13,17 +14,22 @@ const (
 )
 
 func main() {
+	qrFlag := flag.Bool("qr", false, "show qr for web page")
+	flag.Parse()
+
 	localIP, err := internal.GetLocalIP()
 	if err != nil {
 		fmt.Fprint(os.Stderr, err.Error())
 		os.Exit(1)
 	}
-
 	url := fmt.Sprintf("http://%s:%d", localIP, port)
-	err = internal.GenerateQR(url)
-	if err != nil {
-		fmt.Fprint(os.Stderr, err.Error())
-		os.Exit(1)
+
+	if *qrFlag {
+		err = internal.GenerateQR(url)
+		if err != nil {
+			fmt.Fprint(os.Stderr, err.Error())
+			os.Exit(1)
+		}
 	}
 
 	fmt.Printf("Serving on: %s", url)
