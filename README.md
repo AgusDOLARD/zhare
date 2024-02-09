@@ -30,6 +30,7 @@ Or simple run `zhare` to run a server where you can upload files
 ### 🚩Flags
 
 - _-qr:_ show qr for web page
+- _-p:_ server port
 
 ## 📜 License
 

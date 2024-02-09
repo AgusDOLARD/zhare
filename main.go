@@ -9,12 +9,14 @@ import (
 	"github.com/AgusDOLARD/zhare/internal/server"
 )
 
-const (
-	port = 3000
+var (
+	qrFlag   bool
+	portFlag int
 )
 
 func main() {
-	qrFlag := flag.Bool("qr", false, "show qr for web page")
+	flag.BoolVar(&qrFlag, "qr", false, "show qr for web page")
+	flag.IntVar(&portFlag, "p", 3000, "server port")
 	flag.Parse()
 
 	localIP, err := internal.GetLocalIP()
@@ -22,9 +24,9 @@ func main() {
 		fmt.Fprint(os.Stderr, err.Error())
 		os.Exit(1)
 	}
-	url := fmt.Sprintf("http://%s:%d", localIP, port)
+	url := fmt.Sprintf("http://%s:%d", localIP, portFlag)
 
-	if *qrFlag {
+	if qrFlag {
 		err = internal.GenerateQR(url)
 		if err != nil {
 			fmt.Fprint(os.Stderr, err.Error())
@@ -33,7 +35,7 @@ func main() {
 	}
 
 	fmt.Printf("Serving on: %s", url)
-	err = server.Serve(fmt.Sprintf(":%v", port), os.Args...)
+	err = server.Serve(fmt.Sprintf(":%v", portFlag), os.Args...)
 	if err != nil {
 		fmt.Fprint(os.Stderr, err.Error())
 		os.Exit(1)
