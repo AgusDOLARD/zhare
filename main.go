@@ -6,7 +6,6 @@ import (
 	"os"
 
 	"github.com/AgusDOLARD/zhare/internal"
-	"github.com/AgusDOLARD/zhare/internal/server"
 )
 
 var (
@@ -18,6 +17,11 @@ func main() {
 	flag.BoolVar(&qrFlag, "qr", false, "show qr for web page")
 	flag.IntVar(&portFlag, "p", 3000, "server port")
 	flag.Parse()
+
+	if len(flag.Args()) <= 1 {
+		usage()
+		os.Exit(1)
+	}
 
 	localIP, err := internal.GetLocalIP()
 	if err != nil {
@@ -35,7 +39,7 @@ func main() {
 	}
 
 	fmt.Printf("Serving on: %s", url)
-	err = server.Serve(fmt.Sprintf(":%v", portFlag), os.Args...)
+	err = internal.Serve(fmt.Sprintf(":%v", portFlag), flag.Arg(0))
 	if err != nil {
 		fmt.Fprint(os.Stderr, err.Error())
 		os.Exit(1)
@@ -43,5 +47,5 @@ func main() {
 }
 
 func usage() {
-	fmt.Printf("Usage: %s FILEPATH\n", os.Args[0])
+	fmt.Printf("Usage: %s DIRECTORY [OPTIONS]\n", os.Args[0])
 }
