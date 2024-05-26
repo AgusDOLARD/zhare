@@ -18,7 +18,7 @@ func main() {
 	flag.IntVar(&portFlag, "p", 3000, "server port")
 	flag.Parse()
 
-	if len(flag.Args()) <= 1 {
+	if len(flag.Args()) == 0 {
 		usage()
 		os.Exit(1)
 	}
