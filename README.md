@@ -5,7 +5,6 @@ Zhare is a command-line tool designed to simplify file sharing within your local
 ## ✨ Features
 
 - *Simple and Fast:* Quickly share files with others on your local network.
-- *QR Code Generation:* Generate a QR code for easy access.
 - *No External Dependencies:* Single binary for straightforward use.
 - *Cross-Platform:* Works on Windows, macOS, and Linux.
 
@@ -25,11 +24,12 @@ Specify the path to the file you want to share:
 zhare path/to/your/file
 ```
 
-Or simple run `zhare` to run a server where you can upload files
+```sh
+echo "Hello, World!" > zhare
+```
 
 ### 🚩Flags
 
-- _-qr:_ show qr for web page
 - _-p:_ server port
 
 ## 📜 License

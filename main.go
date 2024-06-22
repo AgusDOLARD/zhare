@@ -2,50 +2,35 @@ package main
 
 import (
 	"flag"
-	"fmt"
+	"io"
+	"log/slog"
 	"os"
-
-	"github.com/AgusDOLARD/zhare/internal"
+	"strconv"
+	"zhare/server"
 )
 
 var (
-	qrFlag   bool
 	portFlag int
+	reader   io.Reader
 )
 
 func main() {
-	flag.BoolVar(&qrFlag, "qr", false, "show qr for web page")
 	flag.IntVar(&portFlag, "p", 3000, "server port")
 	flag.Parse()
 
 	if len(flag.Args()) == 0 {
-		usage()
-		os.Exit(1)
-	}
-
-	localIP, err := internal.GetLocalIP()
-	if err != nil {
-		fmt.Fprint(os.Stderr, err.Error())
-		os.Exit(1)
-	}
-	url := fmt.Sprintf("http://%s:%d", localIP, portFlag)
-
-	if qrFlag {
-		err = internal.GenerateQR(url)
+		reader = os.Stdin
+	} else {
+		f, err := os.Open(flag.Arg(0))
 		if err != nil {
-			fmt.Fprint(os.Stderr, err.Error())
+			slog.Error("Error opening file", "err", err.Error())
 			os.Exit(1)
 		}
+		reader = f
 	}
 
-	fmt.Printf("Serving on: %s", url)
-	err = internal.Serve(fmt.Sprintf(":%v", portFlag), flag.Arg(0))
-	if err != nil {
-		fmt.Fprint(os.Stderr, err.Error())
-		os.Exit(1)
+	srv := server.NewServer(":"+strconv.Itoa(portFlag), reader)
+	if err := srv.Start(); err != nil {
+		slog.Error("Server Error", "err", err)
 	}
-}
-
-func usage() {
-	fmt.Printf("Usage: %s DIRECTORY [OPTIONS]\n", os.Args[0])
 }
