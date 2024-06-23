@@ -31,6 +31,7 @@ echo "Hello, World!" > zhare
 ### 🚩Flags
 
 - _-p:_ server port
+- _-debug:_ debug loggin
 
 ## 📜 License
 

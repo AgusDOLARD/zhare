@@ -10,13 +10,19 @@ import (
 )
 
 var (
-	portFlag int
-	reader   io.Reader
+	portFlag  int
+	debugFlag bool
+	reader    io.Reader
 )
 
 func main() {
 	flag.IntVar(&portFlag, "p", 3000, "server port")
+	flag.BoolVar(&debugFlag, "debug", false, "debug mode")
 	flag.Parse()
+
+	if !debugFlag {
+		slog.SetLogLoggerLevel(slog.LevelWarn)
+	}
 
 	if len(flag.Args()) == 0 {
 		reader = os.Stdin
