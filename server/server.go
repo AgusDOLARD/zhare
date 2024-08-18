@@ -1,34 +1,94 @@
 package server
 
 import (
+	_ "embed"
+	"fmt"
+	"html/template"
 	"io"
-	"log/slog"
+	"math/rand"
 	"net/http"
+	"os"
+	"path/filepath"
+	"strconv"
 )
 
+//go:embed web/index.html
+var indexHTML string
+
 type Server struct {
-	addr   string
-	reader io.Reader
+	addr  string
+	files []File
 }
 
-func NewServer(addr string, data io.Reader) *Server {
+type File struct {
+	ID   int
+	Path string
+}
+
+func NewFile(path string) *File {
+	return &File{
+		ID:   rand.Int(),
+		Path: path,
+	}
+}
+
+func NewServer(addr string, files []string) *Server {
+	f := make([]File, 0, len(files))
+	for _, path := range files {
+		f = append(f, *NewFile(path))
+	}
 	return &Server{
-		addr:   addr,
-		reader: data,
+		addr:  addr,
+		files: f,
 	}
 }
 
 func (s *Server) Start() error {
-	slog.Info("Starting server", "addr", s.addr)
-	http.HandleFunc("/", s.handleFileDownload)
+	http.HandleFunc("GET /", s.indexHanlder)
+	http.HandleFunc("GET /file/{id}", s.fileHandler)
 	return http.ListenAndServe(s.addr, nil)
 }
 
-func (s *Server) handleFileDownload(w http.ResponseWriter, r *http.Request) {
-	b, err := io.Copy(w, s.reader)
+func (s *Server) indexHanlder(w http.ResponseWriter, _ *http.Request) {
+	tmpl, err := template.New("index").
+		Funcs(funcMap).
+		Parse(indexHTML)
 	if err != nil {
-		slog.Error("Error serving file", "err", err)
+		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
-	slog.Info("Served file", "path", r.URL.Path, "size", b)
+
+	err = tmpl.Execute(w, s.files)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+}
+
+func (s *Server) fileHandler(w http.ResponseWriter, r *http.Request) {
+	fileID, _ := strconv.Atoi(r.PathValue("id"))
+	file, err := s.getFile(fileID)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	defer file.Close()
+
+	io.Copy(w, file)
+}
+
+func (s *Server) getFile(id int) (*os.File, error) {
+	for _, f := range s.files {
+		if f.ID == id {
+			return os.Open(f.Path)
+		}
+	}
+	return nil, fmt.Errorf("file not found")
+}
+
+// template helper functions
+var funcMap = template.FuncMap{
+	"name": func(s string) string {
+		return filepath.Base(s)
+	},
 }

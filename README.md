@@ -21,17 +21,13 @@ go install github.com/AgusDOLARD/zhare@latest
 Specify the path to the file you want to share:
 
 ```sh
-zhare path/to/your/file
-```
-
-```sh
-echo "Hello, World!" > zhare
+zhare path/to/your/file other/file ...
 ```
 
 ### 🚩Flags
 
-- _-p:_ server port
-- _-debug:_ debug loggin
+- _-a, --addr:_ server address
+- _-p, --port:_ server port
 
 ## 📜 License
 
