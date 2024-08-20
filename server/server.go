@@ -1,7 +1,7 @@
 package server
 
 import (
-	_ "embed"
+	"embed"
 	"fmt"
 	"html/template"
 	"io"
@@ -12,12 +12,17 @@ import (
 	"strconv"
 )
 
-//go:embed web/index.html
-var indexHTML string
+//go:embed web/index.html web/upload.html
+var pages embed.FS
 
 type Server struct {
 	addr  string
 	files []File
+}
+
+type ServerOpts struct {
+	Addr  string
+	Files []string
 }
 
 type File struct {
@@ -45,14 +50,27 @@ func NewServer(addr string, files []string) *Server {
 
 func (s *Server) Start() error {
 	http.HandleFunc("GET /", s.indexHanlder)
+	http.HandleFunc("GET /upload", s.uploadHandler)
+	http.HandleFunc("POST /upload", s.uploadPostHandler)
 	http.HandleFunc("GET /file/{id}", s.fileHandler)
 	return http.ListenAndServe(s.addr, nil)
 }
 
-func (s *Server) indexHanlder(w http.ResponseWriter, _ *http.Request) {
+func (s *Server) indexHanlder(w http.ResponseWriter, r *http.Request) {
+	fileLen := len(s.files)
+	if fileLen == 0 {
+		http.Redirect(w, r, "/upload", http.StatusSeeOther)
+		return
+	}
+	indexHTML, err := pages.ReadFile("web/index.html")
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
 	tmpl, err := template.New("index").
 		Funcs(funcMap).
-		Parse(indexHTML)
+		Parse(string(indexHTML))
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
@@ -75,6 +93,52 @@ func (s *Server) fileHandler(w http.ResponseWriter, r *http.Request) {
 	defer file.Close()
 
 	io.Copy(w, file)
+}
+
+func (s *Server) uploadHandler(w http.ResponseWriter, r *http.Request) {
+	uploadHTML, err := pages.ReadFile("web/upload.html")
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	tmpl, err := template.New("upload").
+		Funcs(funcMap).
+		Parse(string(uploadHTML))
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	err = tmpl.Execute(w, nil)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+}
+
+func (s *Server) uploadPostHandler(w http.ResponseWriter, r *http.Request) {
+	file, header, err := r.FormFile("file")
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	defer file.Close()
+
+	destFile, err := os.Create(header.Filename)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	defer destFile.Close()
+
+	_, err = io.Copy(destFile, file)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	fmt.Fprintf(w, "File %s uploaded successfully", header.Filename)
 }
 
 func (s *Server) getFile(id int) (*os.File, error) {

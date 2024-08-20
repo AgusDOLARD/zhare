@@ -12,7 +12,7 @@ var cli struct {
 	Addr string `name:"addr" default:"localhost" help:"server address"`
 	Port int    `name:"port" short:"p" default:"4000" help:"server port"`
 
-	Files []string `arg:"" name:"file" type:"existingfile" help:"files to serve"`
+	Files []string `arg:"" optional:"" name:"file" type:"existingfile" help:"files to serve"`
 }
 
 func main() {
