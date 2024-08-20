@@ -26,8 +26,8 @@ zhare path/to/your/file other/file ...
 
 ### 🚩Flags
 
-- _-a, --addr:_ server address
 - _-p, --port:_ server port
+- _-v, --version:_ print version
 
 ## 📜 License
 
