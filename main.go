@@ -14,7 +14,7 @@ var cli struct {
 	Port    int              `name:"port" short:"p" default:"4000" help:"server port"`
 	Version kong.VersionFlag `short:"v" help:"Show version"`
 
-	Files []string `arg:"" name:"file" type:"existingfile" help:"files to serve"`
+	Files []string `arg:"" optional:"" name:"file" type:"existingfile" help:"files to serve"`
 }
 
 func main() {
