@@ -24,9 +24,16 @@ Specify the path to the file you want to share:
 zhare path/to/your/file other/file ...
 ```
 
+Or, if you want to share a directory, use the `--dir` flag:
+
+```sh
+zhare --dir path/to/your/directory
+```
+
 ### 🚩Flags
 
 - _-p, --port:_ server port
+- _-d, --dir:_ directory to serve
 - _-v, --version:_ print version
 - _--[no]-log:_ enable/disable logging
 
