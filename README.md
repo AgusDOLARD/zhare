@@ -4,9 +4,9 @@ Zhare is a command-line tool designed to simplify file sharing within your local
 
 ## ✨ Features
 
-- *Simple and Fast:* Quickly share files with others on your local network.
-- *No External Dependencies:* Single binary for straightforward use.
-- *Cross-Platform:* Works on Windows, macOS, and Linux.
+- _Simple and Fast:_ Quickly share files with others on your local network.
+- _No External Dependencies:_ Single binary for straightforward use.
+- _Cross-Platform:_ Works on Windows, macOS, and Linux.
 
 ## 🚀 Installation
 
@@ -28,6 +28,7 @@ zhare path/to/your/file other/file ...
 
 - _-p, --port:_ server port
 - _-v, --version:_ print version
+- _--[no]-log:_ enable/disable logging
 
 ## 📜 License
 

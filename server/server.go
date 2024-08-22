@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"html/template"
 	"io"
+	"log/slog"
 	"math/rand"
 	"net/http"
 	"os"
@@ -16,13 +17,15 @@ import (
 var pages embed.FS
 
 type Server struct {
-	addr  string
-	files []File
+	addr   string
+	files  []File
+	logger *slog.Logger
 }
 
 type ServerOpts struct {
-	Addr  string
-	Files []string
+	Addr         string
+	Files        []string
+	EnableLogger bool
 }
 
 type File struct {
@@ -37,23 +40,41 @@ func NewFile(path string) *File {
 	}
 }
 
-func NewServer(addr string, files []string) *Server {
-	f := make([]File, 0, len(files))
-	for _, path := range files {
+func NewServer(opts *ServerOpts) *Server {
+	var (
+		f      = make([]File, 0, len(opts.Files))
+		logger = slog.Default()
+	)
+
+	for _, path := range opts.Files {
 		f = append(f, *NewFile(path))
 	}
+
+	if !opts.EnableLogger {
+		logHandler := slog.NewTextHandler(io.Discard, &slog.HandlerOptions{})
+		logger = slog.New(logHandler)
+	}
+
 	return &Server{
-		addr:  addr,
-		files: f,
+		addr:   opts.Addr,
+		files:  f,
+		logger: logger,
 	}
 }
 
 func (s *Server) Start() error {
-	http.HandleFunc("GET /", s.indexHanlder)
-	http.HandleFunc("GET /upload", s.uploadHandler)
-	http.HandleFunc("POST /upload", s.uploadPostHandler)
-	http.HandleFunc("GET /file/{id}", s.fileHandler)
-	return http.ListenAndServe(s.addr, nil)
+	mux := http.NewServeMux()
+	mux.HandleFunc("GET /", s.indexHanlder)
+	mux.HandleFunc("GET /upload", s.uploadHandler)
+	mux.HandleFunc("POST /upload", s.uploadPostHandler)
+	mux.HandleFunc("GET /file/{id}", s.fileHandler)
+
+	srv := &http.Server{
+		Addr:    s.addr,
+		Handler: s.LoggingMiddleware(mux),
+	}
+	s.logger.Info("Starting server", "addr", s.addr)
+	return srv.ListenAndServe()
 }
 
 func (s *Server) indexHanlder(w http.ResponseWriter, r *http.Request) {
