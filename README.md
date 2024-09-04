@@ -34,7 +34,6 @@ zhare --dir path/to/your/directory
 
 - _-p, --port:_ server port
 - _-d, --dir:_ directory to serve
-- _-v, --version:_ print version
 - _--[no]-log:_ enable/disable logging
 
 ## 📜 License
