@@ -10,9 +10,9 @@ import (
 )
 
 var cli struct {
-	Directory string           `name:"dir" short:"d" type:"existingdir" help:"directory to serve"`
-	Port      int              `name:"port" short:"p" default:"4000" help:"server port"`
-	Log       bool             `name:"log" default:"true" negatable:"" help:"disable logging"`
+	Directory string `name:"dir" short:"d" type:"existingdir" help:"directory to serve"`
+	Port      int    `name:"port" short:"p" default:"4000" help:"server port"`
+	Log       bool   `name:"log" default:"true" negatable:"" help:"disable logging"`
 
 	Files []string `arg:"" optional:"" name:"file" type:"existingfile" help:"files to serve"`
 }
